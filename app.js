@@ -191,6 +191,35 @@
     return legacyCopy(field);
   }
 
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // Copies the Kruti Dev text with the chosen font attached, so Word applies
+  // the font on paste. Plain text goes along for apps that ignore HTML.
+  function copyKrutiDev() {
+    var text = krutidevOutput.value;
+    if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write) {
+      return copyField(krutidevOutput);
+    }
+    var html = '<span style="font-family:\'Kruti Dev ' + selectedFont + '\';font-size:14pt">' +
+      escapeHtml(text).replace(/ {2}/g, ' &nbsp;').replace(/\r?\n/g, '<br>') + '</span>';
+    try {
+      return navigator.clipboard.write([new ClipboardItem({
+        'text/plain': new Blob([text], { type: 'text/plain' }),
+        'text/html': new Blob([html], { type: 'text/html' })
+      })]).catch(function () {
+        return copyField(krutidevOutput);
+      });
+    } catch (err) {
+      return copyField(krutidevOutput);
+    }
+  }
+
   function copyFailed() {
     showToast(TOASTS.copyFailed);
   }
@@ -200,7 +229,7 @@
       showToast(TOASTS.nothingToCopy);
       return;
     }
-    copyField(krutidevOutput).then(function () {
+    copyKrutiDev().then(function () {
       copied = true;
       refreshSteps();
       showToast(TOASTS.copied, { success: true });
@@ -279,12 +308,21 @@
     fontNotice.hidden = isFontInstalled(fontNames(selectedFont));
   }
 
+  // Start on the remembered font, else the first one found on this computer.
   var savedFont = loadSetting('boloHindi.font');
+  var startRadio = null;
   for (var r = 0; r < fontRadios.length; r++) {
-    if (fontRadios[r].value === savedFont) {
-      fontRadios[r].checked = true;
-      selectedFont = savedFont;
-    }
+    if (fontRadios[r].value === savedFont) startRadio = fontRadios[r];
+  }
+  for (r = 0; r < fontRadios.length && !startRadio; r++) {
+    if (isFontInstalled(fontNames(fontRadios[r].value))) startRadio = fontRadios[r];
+  }
+  if (startRadio) {
+    startRadio.checked = true;
+    selectedFont = startRadio.value;
+  }
+
+  for (r = 0; r < fontRadios.length; r++) {
     fontRadios[r].addEventListener('change', function () {
       selectedFont = this.value;
       saveSetting('boloHindi.font', selectedFont);
