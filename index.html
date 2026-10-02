@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#303a8c">
+  <title>बोलो हिंदी – Bolo Hindi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="24" fill="#f2a33a"/>
+        <path d="M12 13h24a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H23l-8 6v-6h-3a4 4 0 0 1-4-4V17a4 4 0 0 1 4-4z" fill="#fffdf8"/>
+        <path d="M17 21v4M21.5 18v10M26 20v6M30.5 17v12" stroke="#303a8c" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div class="brand">
+        <h1>बोलो हिंदी</h1>
+        <p class="tagline">बोलिए → हिंदी → Kruti Dev</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="app">
+    <div id="message" class="message" role="alert" hidden></div>
+
+    <ol class="steps" aria-label="तीन आसान कदम">
+      <li class="step active" data-step="1" aria-current="step"><span class="step-num">1</span><span>बोलिए</span></li>
+      <li class="step" data-step="2"><span class="step-num">2</span><span>जाँचिए</span></li>
+      <li class="step" data-step="3"><span class="step-num">3</span><span>कॉपी करें</span></li>
+    </ol>
+
+    <section class="mic-dock" aria-label="माइक">
+      <button id="micBtn" class="mic-btn" type="button" aria-pressed="false" aria-label="बोलना शुरू करें">
+        <svg class="mic-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/>
+        </svg>
+        <span id="micLabel" class="mic-label">बोलिए</span>
+      </button>
+      <p id="status" class="status" data-state="ready" role="status">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="statusText">तैयार है</span>
+      </p>
+    </section>
+
+    <div class="toolbar">
+      <span class="toolbar-label">अक्षर का आकार</span>
+      <button id="textSmaller" class="btn btn-quiet btn-size" type="button" aria-label="अक्षर छोटे करें">A−</button>
+      <button id="textLarger" class="btn btn-quiet btn-size" type="button" aria-label="अक्षर बड़े करें">A+</button>
+    </div>
+
+    <div class="workspace">
+      <section class="card" aria-labelledby="unicodeLabel">
+        <label id="unicodeLabel" for="output" class="card-title">हिंदी (Unicode)</label>
+        <textarea id="output" class="textbox" rows="6" lang="hi" spellcheck="false"
+          placeholder="आप जो बोलेंगे, वह यहाँ लिखा आएगा"></textarea>
+        <p id="interimLine" class="interim" lang="hi">
+          <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span id="interim"></span>
+        </p>
+        <div class="actions">
+          <button id="copyUnicodeBtn" class="btn btn-secondary" type="button" aria-label="Unicode हिंदी कॉपी करें">Unicode कॉपी करें</button>
+          <button id="clearBtn" class="btn btn-quiet" type="button" aria-label="सब साफ़ करें">साफ़ करें</button>
+        </div>
+      </section>
+
+      <div class="flow-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 12h14m-5-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <section class="card" id="krutidevSection" aria-labelledby="krutiLabel">
+        <label id="krutiLabel" for="krutidevOutput" class="card-title">Kruti Dev</label>
+
+        <fieldset class="font-picker">
+          <legend>फ़ॉन्ट चुनें: Kruti Dev</legend>
+          <div class="segments">
+            <label class="segment"><input type="radio" name="kdFont" value="010" checked><span>010</span></label>
+            <label class="segment"><input type="radio" name="kdFont" value="011"><span>011</span></label>
+            <label class="segment"><input type="radio" name="kdFont" value="013"><span>013</span></label>
+            <label class="segment"><input type="radio" name="kdFont" value="014"><span>014</span></label>
+            <label class="segment"><input type="radio" name="kdFont" value="015"><span>015</span></label>
+            <label class="segment"><input type="radio" name="kdFont" value="016"><span>016</span></label>
+          </div>
+        </fieldset>
+
+        <p id="fontNotice" class="notice" hidden>यह फ़ॉन्ट इस कंप्यूटर में नहीं है — कॉपी करके Word में Kruti Dev फ़ॉन्ट चुनें</p>
+
+        <textarea id="krutidevOutput" class="textbox kruti" rows="6" spellcheck="false" readonly></textarea>
+
+        <button id="copyKrutiBtn" class="btn btn-primary btn-xl" type="button" aria-label="Kruti Dev वाला लिखा हुआ कॉपी करें">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h9a2 2 0 0 1 2 2v11h-2V5H9V3zM6 7h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2zm0 2v10h9V9H6z"/></svg>
+          कॉपी करें
+        </button>
+
+        <details class="advanced">
+          <summary>सेटिंग (Advanced)</summary>
+          <label class="toggle">
+            <input id="rawToggle" type="checkbox">
+            Show raw text
+          </label>
+        </details>
+      </section>
+    </div>
+
+    <details class="card help">
+      <summary>कैसे इस्तेमाल करें?</summary>
+      <ol>
+        <li>माइक वाला बड़ा बटन दबाइए और हिंदी में बोलिए।</li>
+        <li>बोलना पूरा हो जाए तो वही बटन दोबारा दबाइए। फिर लिखा हुआ पढ़कर जाँच लीजिए — कोई गलती हो तो वहीं ठीक कर लीजिए।</li>
+        <li>“कॉपी करें” वाला बड़ा बटन दबाइए।</li>
+        <li>MS Word खोलिए और Ctrl + V दबाकर पेस्ट कीजिए। अक्षर अंग्रेज़ी जैसे दिखें तो उन्हें चुनिए और ऊपर फ़ॉन्ट की सूची में “Kruti Dev 010” चुन लीजिए।</li>
+      </ol>
+    </details>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden>
+    <span id="toastText"></span>
+    <button id="toastAction" class="btn toast-action" type="button" hidden></button>
+  </div>
+
+  <script src="converter.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
