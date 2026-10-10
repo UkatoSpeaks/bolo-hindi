@@ -72,7 +72,7 @@
     // These ASCII characters are Hindi letters in Kruti Dev (a comma is ए,
     // a full stop is ण्), so the punctuation marks live on other codes.
     ',': ']', '.': '-', '?': '\\', '-': '&', '(': '¼', ')': '½',
-    ';': '(', ':': '%', '/': '@', '+': '$', '=': '¾', '{': '¿', '}': 'À',
+    ';': '(', ':': '%', '+': '$', '=': '¾', '{': '¿', '}': 'À',
     "'": '*', '"': 'ß', '‘': '^', '’': '*', '“': 'Þ', '”': 'ß'
   };
   SINGLE[HALANT] = '~';

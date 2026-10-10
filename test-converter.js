@@ -71,7 +71,12 @@ var CASES = [
   ['सत्य॥', 'lR;AA'],
   ['राम\nश्याम', "jke\n';ke"],
   ['क्या हाल है?', 'D;k gky gS\\'],
-  ['हाँ, ठीक है.', 'gk¡] Bhd gS-']
+  ['हाँ, ठीक है.', 'gk¡] Bhd gS-'],
+
+  // Forward slash passes through unchanged
+  ['10/10/2026', '10/10/2026'],
+  ['हाँ/नहीं', 'gk¡/ugha'],
+  ['राम / श्याम', "jke / ';ke"]
 ];
 
 var failed = 0;
