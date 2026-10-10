@@ -25,7 +25,7 @@
   // single consonants above.
   var CLUSTER = {
     'क्ष': '{k', 'क्ष्': '{',
-    'त्र': '=k', 'त्र्': '=',
+    'त्र': '=', 'त्र्': '=',
     'त्त': 'Ùk', 'त्त्': 'Ù',
     'ज्ञ': 'K', 'श्र': 'J',
     'द्य': '|', 'द्ध': ')', 'द्व': '}', 'द्द': 'í',
@@ -206,8 +206,27 @@
     return out;
   }
 
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // Kruti Dev text as HTML with its font attached, for pasting into Word.
+  // "/" is the glyph for ध् in Kruti Dev fonts, so a literal slash is put
+  // in Arial to stay a slash.
+  function krutiDevToHtml(text, fontName) {
+    var slash = '<span style="font-family:Arial">/</span>';
+    return '<span style="font-family:\'' + fontName + '\';font-size:14pt">' +
+      escapeHtml(text).replace(/\//g, slash).replace(/ {2}/g, ' &nbsp;').replace(/\r?\n/g, '<br>') +
+      '</span>';
+  }
+
   root.unicodeToKrutiDev = unicodeToKrutiDev;
+  root.krutiDevToHtml = krutiDevToHtml;
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { unicodeToKrutiDev: unicodeToKrutiDev };
+    module.exports = { unicodeToKrutiDev: unicodeToKrutiDev, krutiDevToHtml: krutiDevToHtml };
   }
 })(typeof window !== 'undefined' ? window : globalThis);

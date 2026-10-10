@@ -73,7 +73,7 @@
       </div>
 
       <section class="card" id="krutidevSection" aria-labelledby="krutiLabel">
-        <label id="krutiLabel" for="krutidevOutput" class="card-title">Kruti Dev</label>
+        <label id="krutiLabel" class="card-title">Kruti Dev</label>
 
         <fieldset class="font-picker">
           <legend>फ़ॉन्ट चुनें: Kruti Dev</legend>
@@ -89,7 +89,8 @@
 
         <p id="fontNotice" class="notice" hidden>यह फ़ॉन्ट इस कंप्यूटर में नहीं है — कॉपी करके Word में Kruti Dev फ़ॉन्ट चुनें</p>
 
-        <textarea id="krutidevOutput" class="textbox kruti" rows="6" spellcheck="false" readonly></textarea>
+        <div id="krutidevOutput" class="textbox kruti" role="textbox" aria-multiline="true"
+          aria-readonly="true" aria-labelledby="krutiLabel" tabindex="0"></div>
 
         <button id="copyKrutiBtn" class="btn btn-primary btn-xl" type="button" aria-label="Kruti Dev वाला लिखा हुआ कॉपी करें">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h9a2 2 0 0 1 2 2v11h-2V5H9V3zM6 7h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2zm0 2v10h9V9H6z"/></svg>

@@ -1,5 +1,7 @@
 // Run with: node test-converter.js
-var unicodeToKrutiDev = require('./converter.js').unicodeToKrutiDev;
+var converter = require('./converter.js');
+var unicodeToKrutiDev = converter.unicodeToKrutiDev;
+var krutiDevToHtml = converter.krutiDevToHtml;
 
 var CASES = [
   // Given cases
@@ -8,7 +10,7 @@ var CASES = [
   ['नमस्ते', 'ueLrs'],
   ['कर्म', 'deZ'],
   ['धर्मों', '/keksZa'],
-  ['क्षत्रिय', '{kf=k;'],
+  ['क्षत्रिय', '{kf=;'],
   ['ज्ञान', 'Kku'],
   ['श्री', 'Jh'],
   ['विद्यालय', 'fo|ky;'],
@@ -27,7 +29,11 @@ var CASES = [
   ['बुद्ध', 'cq)'],
   ['द्वार', '}kj'],
   ['चट्टान', 'pêku'],
-  ['पत्र', 'i=k'],
+  ['पत्र', 'i='],
+  ['पत्रा', 'i=k'],
+  ['मित्र', 'fe='],
+  ['त्रिशूल', "f='kwy"],
+  ['स्त्री', 'L=h'],
 
   // Ra below the consonant
   ['प्रेम', 'çse'],
@@ -76,19 +82,36 @@ var CASES = [
   // Forward slash passes through unchanged
   ['10/10/2026', '10/10/2026'],
   ['हाँ/नहीं', 'gk¡/ugha'],
-  ['राम / श्याम', "jke / ';ke"]
+  ['राम / श्याम', "jke / ';ke"],
+  ['पत्र संख्या 45/2026', 'i= la[;k 45/2026']
+];
+
+// Clipboard HTML for Kruti Dev text: [Kruti Dev text, expected HTML].
+// Every "/" sits in an Arial span; the rest stays in the Kruti Dev font.
+var ARIAL_SLASH = '<span style="font-family:Arial">/</span>';
+var OPEN = '<span style="font-family:\'Kruti Dev 016\';font-size:14pt">';
+var HTML_CASES = [
+  [unicodeToKrutiDev('पत्र संख्या 45/2026'), OPEN + 'i= la[;k 45' + ARIAL_SLASH + '2026</span>'],
+  [unicodeToKrutiDev('हाँ/नहीं'), OPEN + 'gk¡' + ARIAL_SLASH + 'ugha</span>'],
+  ['10/10/2026', OPEN + '10' + ARIAL_SLASH + '10' + ARIAL_SLASH + '2026</span>'],
+  ['jke\nd<e', OPEN + 'jke<br>d&lt;e</span>']
 ];
 
 var failed = 0;
-CASES.forEach(function (testCase) {
-  var input = testCase[0];
-  var expected = testCase[1];
-  var actual = unicodeToKrutiDev(input);
+function check(input, actual, expected) {
   var ok = actual === expected;
   if (!ok) failed++;
   console.log((ok ? 'PASS' : 'FAIL') + '  ' + JSON.stringify(input) + ' -> ' + JSON.stringify(actual) +
     (ok ? '' : '   expected ' + JSON.stringify(expected)));
+}
+
+CASES.forEach(function (testCase) {
+  check(testCase[0], unicodeToKrutiDev(testCase[0]), testCase[1]);
+});
+HTML_CASES.forEach(function (testCase) {
+  check(testCase[0], krutiDevToHtml(testCase[0], 'Kruti Dev 016'), testCase[1]);
 });
 
-console.log('\n' + (CASES.length - failed) + '/' + CASES.length + ' passed');
+var total = CASES.length + HTML_CASES.length;
+console.log('\n' + (total - failed) + '/' + total + ' passed');
 process.exit(failed ? 1 : 0);

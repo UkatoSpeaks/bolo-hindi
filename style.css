@@ -355,8 +355,18 @@ h1 {
   color: #6f6252;
 }
 
-.textbox[readonly] {
+.textbox[readonly],
+.textbox[aria-readonly="true"] {
   background: var(--surface-tint);
+}
+
+/* The read-only Kruti Dev box is a div; size and wrap it like the
+   six-row textarea beside it. */
+div.textbox {
+  height: calc(var(--ta-size) * 1.7 * 6 + 32px);
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 /* Renders as Hindi only where a Kruti Dev font is installed; the exact
@@ -367,6 +377,15 @@ h1 {
 
 .kruti.raw {
   font-family: Consolas, "Courier New", monospace;
+}
+
+/* "/" is the glyph for ध् in Kruti Dev fonts; show a real slash instead. */
+.kruti .slash {
+  font-family: Arial, sans-serif;
+}
+
+.kruti.raw .slash {
+  font-family: inherit;
 }
 
 /* Words still being recognized */

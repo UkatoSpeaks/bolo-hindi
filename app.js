@@ -134,8 +134,23 @@
 
   // ---- Text and conversion ----
 
+  var krutiText = '';
+
+  // "/" is the glyph for ध् in Kruti Dev fonts, so each slash gets its own
+  // span that style.css keeps out of the Kruti Dev font.
   function updateKrutiDev() {
-    krutidevOutput.value = unicodeToKrutiDev(output.value);
+    krutiText = unicodeToKrutiDev(output.value);
+    var parts = krutiText.split('/');
+    krutidevOutput.textContent = '';
+    for (var i = 0; i < parts.length; i++) {
+      if (i > 0) {
+        var slash = document.createElement('span');
+        slash.className = 'slash';
+        slash.textContent = '/';
+        krutidevOutput.appendChild(slash);
+      }
+      if (parts[i]) krutidevOutput.appendChild(document.createTextNode(parts[i]));
+    }
   }
 
   function textChanged() {
@@ -169,7 +184,8 @@
     return new Promise(function (resolve, reject) {
       var ok = false;
       field.focus();
-      field.select();
+      if (field.select) field.select();
+      else window.getSelection().selectAllChildren(field);
       try {
         ok = document.execCommand('copy');
       } catch (err) {
@@ -182,41 +198,32 @@
     });
   }
 
-  function copyField(field) {
+  function copyField(field, text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      return navigator.clipboard.writeText(field.value).catch(function () {
+      return navigator.clipboard.writeText(text).catch(function () {
         return legacyCopy(field);
       });
     }
     return legacyCopy(field);
   }
 
-  function escapeHtml(text) {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
   // Copies the Kruti Dev text with the chosen font attached, so Word applies
   // the font on paste. Plain text goes along for apps that ignore HTML.
   function copyKrutiDev() {
-    var text = krutidevOutput.value;
+    var text = krutiText;
     if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write) {
-      return copyField(krutidevOutput);
+      return copyField(krutidevOutput, text);
     }
-    var html = '<span style="font-family:\'Kruti Dev ' + selectedFont + '\';font-size:14pt">' +
-      escapeHtml(text).replace(/ {2}/g, ' &nbsp;').replace(/\r?\n/g, '<br>') + '</span>';
+    var html = krutiDevToHtml(text, 'Kruti Dev ' + selectedFont);
     try {
       return navigator.clipboard.write([new ClipboardItem({
         'text/plain': new Blob([text], { type: 'text/plain' }),
         'text/html': new Blob([html], { type: 'text/html' })
       })]).catch(function () {
-        return copyField(krutidevOutput);
+        return copyField(krutidevOutput, text);
       });
     } catch (err) {
-      return copyField(krutidevOutput);
+      return copyField(krutidevOutput, text);
     }
   }
 
@@ -225,7 +232,7 @@
   }
 
   copyKrutiBtn.addEventListener('click', function () {
-    if (!krutidevOutput.value.trim()) {
+    if (!krutiText.trim()) {
       showToast(TOASTS.nothingToCopy);
       return;
     }
@@ -241,7 +248,7 @@
       showToast(TOASTS.nothingToCopy);
       return;
     }
-    copyField(output).then(function () {
+    copyField(output, output.value).then(function () {
       showToast(TOASTS.copiedUnicode, { success: true });
     }, copyFailed);
   });
