@@ -137,9 +137,9 @@
   var krutiSegments = [];
   var krutiText = '';
 
-  // "/" is the glyph for ध् in Kruti Dev fonts, so each slash typed as a
-  // slash gets its own span that style.css keeps out of the Kruti Dev font.
-  // The "/" of a ध stays in the text and in the font.
+  // "/" and "#" are the glyphs for ध् and रु in Kruti Dev fonts, so each one
+  // typed as a symbol gets its own Arial span to stay out of the Kruti Dev
+  // font. The "/" of a ध and the "#" of a रु stay in the text and in the font.
   function updateKrutiDev() {
     krutiSegments = unicodeToKrutiDevSegments(output.value);
     krutiText = '';
@@ -148,10 +148,11 @@
       var segment = krutiSegments[i];
       krutiText += segment.text;
       if (segment.literal) {
-        var slash = document.createElement('span');
-        slash.className = 'slash';
-        slash.textContent = '/';
-        krutidevOutput.appendChild(slash);
+        var literal = document.createElement('span');
+        literal.className = 'literal';
+        literal.style.fontFamily = 'Arial';
+        literal.textContent = segment.text;
+        krutidevOutput.appendChild(literal);
       } else {
         krutidevOutput.appendChild(document.createTextNode(segment.text));
       }

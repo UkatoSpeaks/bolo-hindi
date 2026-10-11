@@ -131,9 +131,13 @@
     return out;
   }
 
-  // The Kruti Dev text as [{text, literal}] segments. "/" is also the glyph
-  // for ध् (ध = "/k"), so each "/" typed as a slash is its own segment with
-  // literal: true; a "/" inside any other segment belongs to a ध.
+  // ASCII symbols that are also Kruti Dev glyphs ("/" is ध्, "#" is रु) and
+  // must stay themselves when typed. Add more symbols here.
+  var LITERAL_SYMBOLS = ['/', '#'];
+
+  // The Kruti Dev text as [{text, literal}] segments. Each literal symbol
+  // from the input is its own segment with literal: true; a "/" or "#"
+  // inside any other segment belongs to a ध or a रु.
   function unicodeToKrutiDevSegments(text) {
     text = String(text)
       .normalize('NFC')
@@ -146,9 +150,9 @@
     var n = text.length;
 
     while (i < n) {
-      if (text.charAt(i) === '/') {
+      if (LITERAL_SYMBOLS.indexOf(text.charAt(i)) !== -1) {
         if (out) segments.push({ text: out, literal: false });
-        segments.push({ text: '/', literal: true });
+        segments.push({ text: text.charAt(i), literal: true });
         out = '';
         i++;
         continue;
@@ -234,12 +238,13 @@
   }
 
   // Segments from unicodeToKrutiDevSegments as HTML with the Kruti Dev font
-  // attached, for pasting into Word. A literal slash is put in Arial to stay
-  // a slash; the "/" of a ध keeps the Kruti Dev font.
+  // attached, for pasting into Word. A literal symbol is put in Arial to stay
+  // itself; the "/" of a ध and the "#" of a रु keep the Kruti Dev font.
   function krutiDevToHtml(segments, fontName) {
-    var slash = '<span style="font-family:Arial">/</span>';
     var body = segments.map(function (segment) {
-      if (segment.literal) return slash;
+      if (segment.literal) {
+        return '<span style="font-family:Arial">' + escapeHtml(segment.text) + '</span>';
+      }
       return escapeHtml(segment.text).replace(/ {2}/g, ' &nbsp;').replace(/\r?\n/g, '<br>');
     }).join('');
     return '<span style="font-family:\'' + fontName + '\';font-size:14pt">' + body + '</span>';

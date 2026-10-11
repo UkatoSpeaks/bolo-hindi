@@ -86,6 +86,12 @@ var CASES = [
   ['राम / श्याम', "jke / ';ke"],
   ['पत्र संख्या 45/2026', 'i= la[;k 45/2026'],
 
+  // Hash passes through unchanged; रु is "#"
+  ['#123', '#123'],
+  ['रुपये', '#i;s'],
+  ['गुरु #1 और रुपया', 'xq# #1 vkSj #i;k'],
+  ['क्रम संख्या #5/2026', 'Øe la[;k #5/2026'],
+
   // ध is "/k" and half ध is "/"
   ['विधायक', 'fo/kk;d'],
   ['निर्धारित', 'fu/kkZfjr'],
@@ -99,9 +105,11 @@ var CASES = [
   ['ग्वाला', 'Xokyk']
 ];
 
-// Clipboard HTML: [Unicode text, expected HTML]. Only a "/" typed as a slash
-// sits in an Arial span; the "/" of a ध stays in the Kruti Dev font.
+// Clipboard HTML: [Unicode text, expected HTML]. Only a "/" or "#" typed as
+// a symbol sits in an Arial span; the "/" of a ध and the "#" of a रु stay in
+// the Kruti Dev font.
 var ARIAL_SLASH = '<span style="font-family:Arial">/</span>';
+var ARIAL_HASH = '<span style="font-family:Arial">#</span>';
 var OPEN = '<span style="font-family:\'Kruti Dev 016\';font-size:14pt">';
 var HTML_CASES = [
   ['पत्र संख्या 45/2026', OPEN + 'i= la[;k 45' + ARIAL_SLASH + '2026</span>'],
@@ -109,7 +117,11 @@ var HTML_CASES = [
   ['10/10/2026', OPEN + '10' + ARIAL_SLASH + '10' + ARIAL_SLASH + '2026</span>'],
   ['राम\nकढ़म', OPEN + 'jke<br>d&lt;+e</span>'],
   ['विधायक', OPEN + 'fo/kk;d</span>'],
-  ['ध्यान/धन', OPEN + '/;ku' + ARIAL_SLASH + '/ku</span>']
+  ['ध्यान/धन', OPEN + '/;ku' + ARIAL_SLASH + '/ku</span>'],
+  ['#123', OPEN + ARIAL_HASH + '123</span>'],
+  ['रुपये', OPEN + '#i;s</span>'],
+  ['गुरु #1 और रुपया', OPEN + 'xq# ' + ARIAL_HASH + '1 vkSj #i;k</span>'],
+  ['क्रम संख्या #5/2026', OPEN + 'Øe la[;k ' + ARIAL_HASH + '5' + ARIAL_SLASH + '2026</span>']
 ];
 
 // Segments: [Unicode text, expected segments as [text, literal] pairs].
@@ -118,6 +130,10 @@ var SEGMENT_CASES = [
   ['माहवार/वर्षवार', [['ekgokj', false], ['/', true], ['o"kZokj', false]]],
   ['/', [['/', true]]],
   ['//', [['/', true], ['/', true]]],
+  ['#123', [['#', true], ['123', false]]],
+  ['रुपये', [['#i;s', false]]],
+  ['गुरु #1 और रुपया', [['xq# ', false], ['#', true], ['1 vkSj #i;k', false]]],
+  ['क्रम संख्या #5/2026', [['Øe la[;k ', false], ['#', true], ['5', false], ['/', true], ['2026', false]]],
   ['', []]
 ];
 
@@ -132,7 +148,11 @@ var ARIAL_COUNT_CASES = [
   ['माहवार/वर्षवार', 1],
   ['निष्प्रोज्य/नष्ट', 1],
   ['45/2026', 1],
-  [PARAGRAPH, 2]
+  [PARAGRAPH, 2],
+  ['#123', 1],
+  ['रुपये', 0],
+  ['गुरु #1 और रुपया', 1],
+  ['क्रम संख्या #5/2026', 2]
 ];
 
 var failed = 0;

@@ -379,13 +379,10 @@ div.textbox {
   font-family: Consolas, "Courier New", monospace;
 }
 
-/* "/" is the glyph for ध् in Kruti Dev fonts; show a real slash instead. */
-.kruti .slash {
-  font-family: Arial, sans-serif;
-}
-
-.kruti.raw .slash {
-  font-family: inherit;
+/* Literal "/" and "#" carry an inline Arial font to stay out of the Kruti Dev
+   font; raw text shows them like the rest. */
+.kruti.raw .literal {
+  font-family: inherit !important;
 }
 
 /* Words still being recognized */
