@@ -131,17 +131,29 @@
     return out;
   }
 
-  function unicodeToKrutiDev(text) {
+  // The Kruti Dev text as [{text, literal}] segments. "/" is also the glyph
+  // for ध् (ध = "/k"), so each "/" typed as a slash is its own segment with
+  // literal: true; a "/" inside any other segment belongs to a ध.
+  function unicodeToKrutiDevSegments(text) {
     text = String(text)
       .normalize('NFC')
       .replace(/[‌‍]/g, '')
       .replace(/[ऩऱऴ]/g, function (ch) { return NUKTA_SPLIT[ch]; });
 
+    var segments = [];
     var out = '';
     var i = 0;
     var n = text.length;
 
     while (i < n) {
+      if (text.charAt(i) === '/') {
+        if (out) segments.push({ text: out, literal: false });
+        segments.push({ text: '/', literal: true });
+        out = '';
+        i++;
+        continue;
+      }
+
       if (!isConsonant(text.charAt(i))) {
         out += convertSingle(text.charAt(i));
         i++;
@@ -203,7 +215,14 @@
         (reph ? 'Z' : '') + modifiers;
     }
 
-    return out;
+    if (out) segments.push({ text: out, literal: false });
+    return segments;
+  }
+
+  function unicodeToKrutiDev(text) {
+    return unicodeToKrutiDevSegments(text).map(function (segment) {
+      return segment.text;
+    }).join('');
   }
 
   function escapeHtml(text) {
@@ -214,19 +233,26 @@
       .replace(/"/g, '&quot;');
   }
 
-  // Kruti Dev text as HTML with its font attached, for pasting into Word.
-  // "/" is the glyph for ध् in Kruti Dev fonts, so a literal slash is put
-  // in Arial to stay a slash.
-  function krutiDevToHtml(text, fontName) {
+  // Segments from unicodeToKrutiDevSegments as HTML with the Kruti Dev font
+  // attached, for pasting into Word. A literal slash is put in Arial to stay
+  // a slash; the "/" of a ध keeps the Kruti Dev font.
+  function krutiDevToHtml(segments, fontName) {
     var slash = '<span style="font-family:Arial">/</span>';
-    return '<span style="font-family:\'' + fontName + '\';font-size:14pt">' +
-      escapeHtml(text).replace(/\//g, slash).replace(/ {2}/g, ' &nbsp;').replace(/\r?\n/g, '<br>') +
-      '</span>';
+    var body = segments.map(function (segment) {
+      if (segment.literal) return slash;
+      return escapeHtml(segment.text).replace(/ {2}/g, ' &nbsp;').replace(/\r?\n/g, '<br>');
+    }).join('');
+    return '<span style="font-family:\'' + fontName + '\';font-size:14pt">' + body + '</span>';
   }
 
   root.unicodeToKrutiDev = unicodeToKrutiDev;
+  root.unicodeToKrutiDevSegments = unicodeToKrutiDevSegments;
   root.krutiDevToHtml = krutiDevToHtml;
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { unicodeToKrutiDev: unicodeToKrutiDev, krutiDevToHtml: krutiDevToHtml };
+    module.exports = {
+      unicodeToKrutiDev: unicodeToKrutiDev,
+      unicodeToKrutiDevSegments: unicodeToKrutiDevSegments,
+      krutiDevToHtml: krutiDevToHtml
+    };
   }
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,6 +1,7 @@
 // Run with: node test-converter.js
 var converter = require('./converter.js');
 var unicodeToKrutiDev = converter.unicodeToKrutiDev;
+var unicodeToKrutiDevSegments = converter.unicodeToKrutiDevSegments;
 var krutiDevToHtml = converter.krutiDevToHtml;
 
 var CASES = [
@@ -83,18 +84,55 @@ var CASES = [
   ['10/10/2026', '10/10/2026'],
   ['हाँ/नहीं', 'gk¡/ugha'],
   ['राम / श्याम', "jke / ';ke"],
-  ['पत्र संख्या 45/2026', 'i= la[;k 45/2026']
+  ['पत्र संख्या 45/2026', 'i= la[;k 45/2026'],
+
+  // ध is "/k" and half ध is "/"
+  ['विधायक', 'fo/kk;d'],
+  ['निर्धारित', 'fu/kkZfjr'],
+  ['उपलब्ध', 'miyC/k'],
+  ['अधिनियम', 'vf/kfu;e'],
+  ['ध्यान', '/;ku'],
+
+  // Half ग is "X"
+  ['संलग्नक', 'layXud'],
+  ['अग्नि', 'vfXu'],
+  ['ग्वाला', 'Xokyk']
 ];
 
-// Clipboard HTML for Kruti Dev text: [Kruti Dev text, expected HTML].
-// Every "/" sits in an Arial span; the rest stays in the Kruti Dev font.
+// Clipboard HTML: [Unicode text, expected HTML]. Only a "/" typed as a slash
+// sits in an Arial span; the "/" of a ध stays in the Kruti Dev font.
 var ARIAL_SLASH = '<span style="font-family:Arial">/</span>';
 var OPEN = '<span style="font-family:\'Kruti Dev 016\';font-size:14pt">';
 var HTML_CASES = [
-  [unicodeToKrutiDev('पत्र संख्या 45/2026'), OPEN + 'i= la[;k 45' + ARIAL_SLASH + '2026</span>'],
-  [unicodeToKrutiDev('हाँ/नहीं'), OPEN + 'gk¡' + ARIAL_SLASH + 'ugha</span>'],
+  ['पत्र संख्या 45/2026', OPEN + 'i= la[;k 45' + ARIAL_SLASH + '2026</span>'],
+  ['हाँ/नहीं', OPEN + 'gk¡' + ARIAL_SLASH + 'ugha</span>'],
   ['10/10/2026', OPEN + '10' + ARIAL_SLASH + '10' + ARIAL_SLASH + '2026</span>'],
-  ['jke\nd<e', OPEN + 'jke<br>d&lt;e</span>']
+  ['राम\nकढ़म', OPEN + 'jke<br>d&lt;+e</span>'],
+  ['विधायक', OPEN + 'fo/kk;d</span>'],
+  ['ध्यान/धन', OPEN + '/;ku' + ARIAL_SLASH + '/ku</span>']
+];
+
+// Segments: [Unicode text, expected segments as [text, literal] pairs].
+var SEGMENT_CASES = [
+  ['विधायक', [['fo/kk;d', false]]],
+  ['माहवार/वर्षवार', [['ekgokj', false], ['/', true], ['o"kZokj', false]]],
+  ['/', [['/', true]]],
+  ['//', [['/', true], ['/', true]]],
+  ['', []]
+];
+
+// Number of Arial spans in the clipboard HTML: [Unicode text, expected count].
+var PARAGRAPH = '2. वर्ष 2007 से संबंधित उपलब्ध अभिलेखों के अनुसार विधायक को वास्तव में ' +
+  'भुगतान किए गए वेतन एवं प्रत्येक भत्ते की माहवार/वर्षवार राशि वर्ष 2020, मार्च तक के ' +
+  'निष्प्रोज्य/नष्ट किये गये है आदेश की प्रमाणित प्रति (संलग्नक- 02)';
+var ARIAL_COUNT_CASES = [
+  ['विधायक', 0],
+  ['निर्धारित', 0],
+  ['उपलब्ध', 0],
+  ['माहवार/वर्षवार', 1],
+  ['निष्प्रोज्य/नष्ट', 1],
+  ['45/2026', 1],
+  [PARAGRAPH, 2]
 ];
 
 var failed = 0;
@@ -109,9 +147,26 @@ CASES.forEach(function (testCase) {
   check(testCase[0], unicodeToKrutiDev(testCase[0]), testCase[1]);
 });
 HTML_CASES.forEach(function (testCase) {
-  check(testCase[0], krutiDevToHtml(testCase[0], 'Kruti Dev 016'), testCase[1]);
+  var html = krutiDevToHtml(unicodeToKrutiDevSegments(testCase[0]), 'Kruti Dev 016');
+  check(testCase[0], html, testCase[1]);
+});
+SEGMENT_CASES.forEach(function (testCase) {
+  var pairs = unicodeToKrutiDevSegments(testCase[0]).map(function (segment) {
+    return [segment.text, segment.literal];
+  });
+  check(testCase[0], JSON.stringify(pairs), JSON.stringify(testCase[1]));
+});
+ARIAL_COUNT_CASES.forEach(function (testCase) {
+  var html = krutiDevToHtml(unicodeToKrutiDevSegments(testCase[0]), 'Kruti Dev 016');
+  check(testCase[0], html.split('font-family:Arial').length - 1, testCase[1]);
 });
 
-var total = CASES.length + HTML_CASES.length;
+// The ध words of the paragraph keep their "/" in the Kruti Dev text.
+var paragraphKruti = unicodeToKrutiDev(PARAGRAPH);
+['miyC/k', 'fo/kk;d', 'lacaf/kr', 'layXud'].forEach(function (word) {
+  check('paragraph contains ' + word, paragraphKruti.indexOf(word) !== -1, true);
+});
+
+var total = CASES.length + HTML_CASES.length + SEGMENT_CASES.length + ARIAL_COUNT_CASES.length + 4;
 console.log('\n' + (total - failed) + '/' + total + ' passed');
 process.exit(failed ? 1 : 0);

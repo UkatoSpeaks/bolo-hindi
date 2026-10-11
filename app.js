@@ -134,22 +134,27 @@
 
   // ---- Text and conversion ----
 
+  var krutiSegments = [];
   var krutiText = '';
 
-  // "/" is the glyph for ध् in Kruti Dev fonts, so each slash gets its own
-  // span that style.css keeps out of the Kruti Dev font.
+  // "/" is the glyph for ध् in Kruti Dev fonts, so each slash typed as a
+  // slash gets its own span that style.css keeps out of the Kruti Dev font.
+  // The "/" of a ध stays in the text and in the font.
   function updateKrutiDev() {
-    krutiText = unicodeToKrutiDev(output.value);
-    var parts = krutiText.split('/');
+    krutiSegments = unicodeToKrutiDevSegments(output.value);
+    krutiText = '';
     krutidevOutput.textContent = '';
-    for (var i = 0; i < parts.length; i++) {
-      if (i > 0) {
+    for (var i = 0; i < krutiSegments.length; i++) {
+      var segment = krutiSegments[i];
+      krutiText += segment.text;
+      if (segment.literal) {
         var slash = document.createElement('span');
         slash.className = 'slash';
         slash.textContent = '/';
         krutidevOutput.appendChild(slash);
+      } else {
+        krutidevOutput.appendChild(document.createTextNode(segment.text));
       }
-      if (parts[i]) krutidevOutput.appendChild(document.createTextNode(parts[i]));
     }
   }
 
@@ -214,7 +219,7 @@
     if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write) {
       return copyField(krutidevOutput, text);
     }
-    var html = krutiDevToHtml(text, 'Kruti Dev ' + selectedFont);
+    var html = krutiDevToHtml(krutiSegments, 'Kruti Dev ' + selectedFont);
     try {
       return navigator.clipboard.write([new ClipboardItem({
         'text/plain': new Blob([text], { type: 'text/plain' }),
