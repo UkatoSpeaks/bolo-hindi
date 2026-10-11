@@ -379,7 +379,7 @@ div.textbox {
   font-family: Consolas, "Courier New", monospace;
 }
 
-/* Literal "/" and "#" carry an inline Arial font to stay out of the Kruti Dev
+/* Literal "/", "#" and "*" carry an inline Arial font to stay out of the Kruti Dev
    font; raw text shows them like the rest. */
 .kruti.raw .literal {
   font-family: inherit !important;
@@ -607,6 +607,11 @@ summary {
   min-height: 48px;
   padding: 4px 2px;
   cursor: pointer;
+}
+
+.version {
+  margin: 4px 2px 0;
+  font-size: 16px;
 }
 
 .toggle input {

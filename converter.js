@@ -9,6 +9,10 @@
   var RA = 'र';
   var I_MATRA = 'ि';
 
+  // Shown in the settings section. Keep it the same as the "?v=" on the
+  // style and script links in index.html; bump both on every release.
+  var VERSION = '2026-10-11a';
+
   // [consonant, full form, half form]. Letters without a half glyph in
   // Kruti Dev have none; they fall back to full form + visible halant (~).
   var CONSONANTS = [
@@ -131,13 +135,15 @@
     return out;
   }
 
-  // ASCII symbols that are also Kruti Dev glyphs ("/" is ध्, "#" is रु) and
-  // must stay themselves when typed. Add more symbols here.
-  var LITERAL_SYMBOLS = ['/', '#'];
+  // ASCII symbols that are also Kruti Dev glyphs ("/" is ध्, "#" is रु, "*"
+  // is a closing quote) and must stay themselves when typed. Add more
+  // symbols here.
+  var LITERAL_SYMBOLS = ['/', '#', '*'];
 
   // The Kruti Dev text as [{text, literal}] segments. Each literal symbol
-  // from the input is its own segment with literal: true; a "/" or "#"
-  // inside any other segment belongs to a ध or a रु.
+  // from the input is its own segment with literal: true, so "####" is four
+  // segments; a "/", "#" or "*" inside any other segment belongs to a ध, a
+  // रु or a quote.
   function unicodeToKrutiDevSegments(text) {
     text = String(text)
       .normalize('NFC')
@@ -239,7 +245,8 @@
 
   // Segments from unicodeToKrutiDevSegments as HTML with the Kruti Dev font
   // attached, for pasting into Word. A literal symbol is put in Arial to stay
-  // itself; the "/" of a ध and the "#" of a रु keep the Kruti Dev font.
+  // itself; the "/" of a ध, the "#" of a रु and the "*" of a quote keep the
+  // Kruti Dev font.
   function krutiDevToHtml(segments, fontName) {
     var body = segments.map(function (segment) {
       if (segment.literal) {
@@ -250,11 +257,13 @@
     return '<span style="font-family:\'' + fontName + '\';font-size:14pt">' + body + '</span>';
   }
 
+  root.KRUTI_DEV_VERSION = VERSION;
   root.unicodeToKrutiDev = unicodeToKrutiDev;
   root.unicodeToKrutiDevSegments = unicodeToKrutiDevSegments;
   root.krutiDevToHtml = krutiDevToHtml;
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
+      VERSION: VERSION,
       unicodeToKrutiDev: unicodeToKrutiDev,
       unicodeToKrutiDevSegments: unicodeToKrutiDevSegments,
       krutiDevToHtml: krutiDevToHtml

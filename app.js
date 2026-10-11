@@ -23,6 +23,8 @@
   var toastText = document.getElementById('toastText');
   var toastAction = document.getElementById('toastAction');
 
+  document.getElementById('appVersion').textContent = 'v' + window.KRUTI_DEV_VERSION;
+
   var LABEL_IDLE = 'बोलिए';
   var LABEL_LISTENING = 'रोकिए';
   var ARIA_IDLE = 'बोलना शुरू करें';
@@ -137,9 +139,10 @@
   var krutiSegments = [];
   var krutiText = '';
 
-  // "/" and "#" are the glyphs for ध् and रु in Kruti Dev fonts, so each one
-  // typed as a symbol gets its own Arial span to stay out of the Kruti Dev
-  // font. The "/" of a ध and the "#" of a रु stay in the text and in the font.
+  // "/", "#" and "*" are the glyphs for ध्, रु and a closing quote in Kruti
+  // Dev fonts, so each one typed as a symbol gets its own Arial span to stay
+  // out of the Kruti Dev font. The "/" of a ध, the "#" of a रु and the "*" of
+  // a quote stay in the text and in the font.
   function updateKrutiDev() {
     krutiSegments = unicodeToKrutiDevSegments(output.value);
     krutiText = '';

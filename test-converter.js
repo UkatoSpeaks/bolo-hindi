@@ -92,6 +92,11 @@ var CASES = [
   ['गुरु #1 और रुपया', 'xq# #1 vkSj #i;k'],
   ['क्रम संख्या #5/2026', 'Øe la[;k #5/2026'],
 
+  // Asterisk passes through unchanged; an apostrophe is "*"
+  ['**बिन्दु**', '**fcUnq**'],
+  ["'राम'", '*jke*'],
+  ['#### **बिन्दु संख्या:-1,**', '#### **fcUnq la[;k%&1]**'],
+
   // ध is "/k" and half ध is "/"
   ['विधायक', 'fo/kk;d'],
   ['निर्धारित', 'fu/kkZfjr'],
@@ -105,11 +110,12 @@ var CASES = [
   ['ग्वाला', 'Xokyk']
 ];
 
-// Clipboard HTML: [Unicode text, expected HTML]. Only a "/" or "#" typed as
-// a symbol sits in an Arial span; the "/" of a ध and the "#" of a रु stay in
-// the Kruti Dev font.
+// Clipboard HTML: [Unicode text, expected HTML]. Only a "/", "#" or "*" typed
+// as a symbol sits in an Arial span; the "/" of a ध, the "#" of a रु and the
+// "*" of a quote stay in the Kruti Dev font.
 var ARIAL_SLASH = '<span style="font-family:Arial">/</span>';
 var ARIAL_HASH = '<span style="font-family:Arial">#</span>';
+var ARIAL_STAR = '<span style="font-family:Arial">*</span>';
 var OPEN = '<span style="font-family:\'Kruti Dev 016\';font-size:14pt">';
 var HTML_CASES = [
   ['पत्र संख्या 45/2026', OPEN + 'i= la[;k 45' + ARIAL_SLASH + '2026</span>'],
@@ -121,7 +127,11 @@ var HTML_CASES = [
   ['#123', OPEN + ARIAL_HASH + '123</span>'],
   ['रुपये', OPEN + '#i;s</span>'],
   ['गुरु #1 और रुपया', OPEN + 'xq# ' + ARIAL_HASH + '1 vkSj #i;k</span>'],
-  ['क्रम संख्या #5/2026', OPEN + 'Øe la[;k ' + ARIAL_HASH + '5' + ARIAL_SLASH + '2026</span>']
+  ['क्रम संख्या #5/2026', OPEN + 'Øe la[;k ' + ARIAL_HASH + '5' + ARIAL_SLASH + '2026</span>'],
+  ['####', OPEN + ARIAL_HASH + ARIAL_HASH + ARIAL_HASH + ARIAL_HASH + '</span>'],
+  ['**बिन्दु**', OPEN + ARIAL_STAR + ARIAL_STAR + 'fcUnq' + ARIAL_STAR + ARIAL_STAR + '</span>'],
+  ['#### **बिन्दु संख्या:-1,**', OPEN + ARIAL_HASH + ARIAL_HASH + ARIAL_HASH + ARIAL_HASH + ' ' +
+    ARIAL_STAR + ARIAL_STAR + 'fcUnq la[;k%&amp;1]' + ARIAL_STAR + ARIAL_STAR + '</span>']
 ];
 
 // Segments: [Unicode text, expected segments as [text, literal] pairs].
@@ -134,6 +144,16 @@ var SEGMENT_CASES = [
   ['रुपये', [['#i;s', false]]],
   ['गुरु #1 और रुपया', [['xq# ', false], ['#', true], ['1 vkSj #i;k', false]]],
   ['क्रम संख्या #5/2026', [['Øe la[;k ', false], ['#', true], ['5', false], ['/', true], ['2026', false]]],
+  ['##', [['#', true], ['#', true]]],
+  ['####', [['#', true], ['#', true], ['#', true], ['#', true]]],
+  ['#### शीर्षक', [['#', true], ['#', true], ['#', true], ['#', true], [" 'kh\"kZd", false]]],
+  ['**बिन्दु**', [['*', true], ['*', true], ['fcUnq', false], ['*', true], ['*', true]]],
+  // Reph and short i next to literal symbols
+  ['#र्म#', [['#', true], ['eZ', false], ['#', true]]],
+  ['##कि##', [['#', true], ['#', true], ['fd', false], ['#', true], ['#', true]]],
+  ["'राम'", [['*jke*', false]]],
+  ['#### **बिन्दु संख्या:-1,**', [['#', true], ['#', true], ['#', true], ['#', true], [' ', false],
+    ['*', true], ['*', true], ['fcUnq la[;k%&1]', false], ['*', true], ['*', true]]],
   ['', []]
 ];
 
@@ -152,7 +172,13 @@ var ARIAL_COUNT_CASES = [
   ['#123', 1],
   ['रुपये', 0],
   ['गुरु #1 और रुपया', 1],
-  ['क्रम संख्या #5/2026', 2]
+  ['क्रम संख्या #5/2026', 2],
+  ['####', 4],
+  ['##', 2],
+  ['#### शीर्षक', 4],
+  ['**बिन्दु**', 4],
+  ["'राम'", 0],
+  ['#### **बिन्दु संख्या:-1,**', 8]
 ];
 
 var failed = 0;
@@ -187,6 +213,13 @@ var paragraphKruti = unicodeToKrutiDev(PARAGRAPH);
   check('paragraph contains ' + word, paragraphKruti.indexOf(word) !== -1, true);
 });
 
-var total = CASES.length + HTML_CASES.length + SEGMENT_CASES.length + ARIAL_COUNT_CASES.length + 4;
+// The cache-busting "?v=" on every link in index.html is the current version.
+var indexHtml = require('fs').readFileSync(require('path').join(__dirname, 'index.html'), 'utf8');
+['style.css', 'converter.js', 'app.js'].forEach(function (file) {
+  check('index.html loads ' + file + ' with the version',
+    indexHtml.indexOf('"' + file + '?v=' + converter.VERSION + '"') !== -1, true);
+});
+
+var total = CASES.length + HTML_CASES.length + SEGMENT_CASES.length + ARIAL_COUNT_CASES.length + 7;
 console.log('\n' + (total - failed) + '/' + total + ' passed');
 process.exit(failed ? 1 : 0);
